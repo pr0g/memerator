@@ -11,8 +11,6 @@ generator client {
 
 model User {
     id       Int    @id @default(autoincrement())
-    username String @unique
-    password String
     memes    Meme[]
     isAdmin  Boolean @default(false)
     credits  Int     @default(2)
