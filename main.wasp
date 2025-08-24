@@ -37,3 +37,8 @@ action createMeme {
   fn: import { createMeme } from "@src/actions.js",
   entities: [Meme, Template, User]
 }
+
+query getAllMemes {
+  fn: import { getAllMemes } from "@src/queries.js",
+  entities: [Meme]
+}
