@@ -73,7 +73,7 @@ export const createMeme: CreateMeme<CreateMemeArgs, Meme> = async (
               description: "The text for the bottom caption of the meme",
             },
           },
-          required: ["templateName", "text0", "text1"],
+          required: ["text0", "text1"],
           additionalProperties: false,
         },
         strict: true,
