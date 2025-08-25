@@ -42,3 +42,14 @@ query getAllMemes {
   fn: import { getAllMemes } from "@src/queries.js",
   entities: [Meme]
 }
+
+job storeMemeTemplates {
+  executor: PgBoss,
+  perform: {
+    fn: import { fetchAndStoreMemeTemplates } from "@src/workers.js",
+  },
+  schedule: {
+    cron: "0 7 * * *"
+  },
+  entities: [Template]
+}
