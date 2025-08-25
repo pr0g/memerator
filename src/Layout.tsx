@@ -1,12 +1,10 @@
-import { ReactNode } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { useAuth, logout } from "wasp/client/auth";
 import { FaRegLaughBeam } from "react-icons/fa";
 import "./Main.css";
 
-export const Layout = ({ children }: { children: ReactNode }) => {
+export const Layout = () => {
   const { data: user } = useAuth();
-
   return (
     <div className="flex flex-col min-h-screen">
       <header className="bg-black text-primary-300 p-4">
