@@ -2,16 +2,16 @@ import { HttpError } from "wasp/server";
 import OpenAI from "openai";
 import { fetchMemeTemplates, generateMemeImage } from "./utils";
 
-import type { CreateMeme, EditMeme } from "wasp/server/operations";
+import type { CreateMeme, EditMeme, DeleteMeme } from "wasp/server/operations";
 import type { Meme, Template } from "wasp/entities";
-
-type CreateMemeArgs = { topics: string[]; audience: string };
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const createMeme: CreateMeme<CreateMemeArgs, Meme> = async (
+type CreateMemeArgs = { topics: string[]; audience: string };
+type CreateMemeResult = Meme;
+export const createMeme: CreateMeme<CreateMemeArgs, CreateMemeResult> = async (
   args,
   context
 ) => {
@@ -166,4 +166,27 @@ export const editMeme: EditMeme<EditMemeArgs, EditMemeResult> = async (
     },
   });
   return newMeme;
+};
+
+type DeleteMemeArgs = Pick<Meme, "id">;
+type DeleteMemeResult = Meme;
+export const deleteMeme: DeleteMeme<DeleteMemeArgs, DeleteMemeResult> = async (
+  { id },
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in");
+  }
+  const meme = await context.entities.Meme.findFirstOrThrow({
+    where: { id },
+    include: { template: true },
+  });
+  if (!context.user.isAdmin && meme.userId != context.user.id) {
+    throw new HttpError(403, "You are not the creator of this meme");
+  }
+  const deletedMeme = await context.entities.Meme.delete({
+    where: { id },
+  });
+  console.log("Deleted meme:", deletedMeme);
+  return deletedMeme;
 };

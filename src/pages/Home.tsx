@@ -1,12 +1,18 @@
-import { useState, FormEventHandler } from "react";
+import { useState, useCallback, FormEventHandler } from "react";
 import {
   AiOutlinePlusCircle,
   AiOutlineMinusCircle,
   AiOutlineRobot,
   AiOutlineEdit,
+  AiOutlineDelete,
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
-import { useQuery, createMeme, getAllMemes } from "wasp/client/operations";
+import {
+  useQuery,
+  createMeme,
+  getAllMemes,
+  deleteMeme,
+} from "wasp/client/operations";
 import { useAuth } from "wasp/client/auth";
 import { Link } from "react-router-dom";
 
@@ -14,6 +20,7 @@ export function HomePage() {
   const [topics, setTopics] = useState([""]);
   const [audience, setAudience] = useState("");
   const [isMemeGenerating, setIsMemeGenerating] = useState(false);
+  const [isMemeDeleting, setIsMemeDeleting] = useState(false);
 
   let navigate = useNavigate();
   const { data: user } = useAuth();
@@ -32,20 +39,38 @@ export function HomePage() {
     try {
       setIsMemeGenerating(true);
       await createMeme({ topics, audience });
-    } catch (e: unknown) {
-      if (e instanceof Error) {
-        alert("Error generating meme: " + e.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        alert("Error generating meme: " + error.message);
       } else {
-        alert("Error generating meme: " + JSON.stringify(e));
+        alert("Error generating meme: " + JSON.stringify(error));
       }
     } finally {
       setIsMemeGenerating(false);
     }
   };
 
-  const handleDeleteMeme = async (id: string) => {
-    // todo
-  };
+  const handleDeleteMeme = useCallback(
+    (id: string) => async () => {
+      if (!user) {
+        navigate("/login");
+        return;
+      }
+      try {
+        setIsMemeDeleting(true);
+        await deleteMeme({ id });
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          alert("Error deleting meme: " + error.message);
+        } else {
+          alert("Error deleting meme: " + JSON.stringify(error));
+        }
+      } finally {
+        setIsMemeDeleting(false);
+      }
+    },
+    [user, navigate]
+  );
 
   if (isLoading) {
     return "Loading...";
@@ -147,7 +172,13 @@ export function HomePage() {
                     Edit Meme
                   </button>
                 </Link>
-                {/* TODO: add delete meme functionality */}
+                <button
+                  className="flex items-center gap-1 bg-primary-200 hover:bg-primary-300 border-2 text-black text-xs py-1 px-2 rounded"
+                  onClick={handleDeleteMeme(memeIdea.id)}
+                >
+                  <AiOutlineDelete />
+                  Delete Meme
+                </button>
               </div>
             )}
           </div>

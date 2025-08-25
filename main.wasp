@@ -50,6 +50,11 @@ action editMeme {
   entities: [Meme, Template, User]
 }
 
+action deleteMeme {
+  fn: import { deleteMeme } from "@src/actions.js",
+  entities: [Meme]
+}
+
 query getAllMemes {
   fn: import { getAllMemes } from "@src/queries.js",
   entities: [Meme]
