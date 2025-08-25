@@ -2,8 +2,8 @@ import { HttpError } from "wasp/server";
 import OpenAI from "openai";
 import { fetchMemeTemplates, generateMemeImage } from "./utils";
 
-import { type CreateMeme } from "wasp/server/operations";
-import { type Meme, Template } from "wasp/entities";
+import type { CreateMeme, EditMeme } from "wasp/server/operations";
+import type { Meme, Template } from "wasp/entities";
 
 type CreateMemeArgs = { topics: string[]; audience: string };
 
@@ -134,4 +134,36 @@ export const createMeme: CreateMeme<CreateMemeArgs, Meme> = async (
   });
 
   return meme;
+};
+
+type EditMemeArgs = Pick<Meme, "id" | "text0" | "text1">;
+type EditMemeResult = Meme;
+export const editMeme: EditMeme<EditMemeArgs, EditMemeResult> = async (
+  { id, text0, text1 },
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401, "You must be logged in");
+  }
+  const meme = await context.entities.Meme.findFirstOrThrow({
+    where: { id },
+    include: { template: true },
+  });
+  if (!context.user.isAdmin && meme.userId != context.user.id) {
+    throw new HttpError(403, "You are not the creator of this meme");
+  }
+  const memeUrl = await generateMemeImage({
+    templateId: meme.template.id,
+    text0,
+    text1,
+  });
+  const newMeme = await context.entities.Meme.update({
+    where: { id },
+    data: {
+      text0,
+      text1,
+      url: memeUrl,
+    },
+  });
+  return newMeme;
 };

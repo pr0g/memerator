@@ -3,10 +3,12 @@ import {
   AiOutlinePlusCircle,
   AiOutlineMinusCircle,
   AiOutlineRobot,
+  AiOutlineEdit,
 } from "react-icons/ai";
 import { useNavigate } from "react-router-dom";
 import { useQuery, createMeme, getAllMemes } from "wasp/client/operations";
 import { useAuth } from "wasp/client/auth";
+import { Link } from "react-router-dom";
 
 export function HomePage() {
   const [topics, setTopics] = useState([""]);
@@ -137,7 +139,17 @@ export function HomePage() {
                 </span>
               </div>
             </div>
-            {/* TODO: implement edit and delete meme features */}
+            {user && (user.isAdmin || user.id === memeIdea.userId) && (
+              <div className="flex items-center mt-2">
+                <Link key={memeIdea.id} to={`/meme/${memeIdea.id}`}>
+                  <button className="flex items-center gap-1 bg-primary-200 hover:bg-primary-300 border-2 text-black text-xs py-1 px-2 rounded">
+                    <AiOutlineEdit />
+                    Edit Meme
+                  </button>
+                </Link>
+                {/* TODO: add delete meme functionality */}
+              </div>
+            )}
           </div>
         ))
       ) : (
