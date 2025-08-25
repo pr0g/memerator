@@ -39,7 +39,7 @@ export const generateMemeImage = async (args: GenerateMemeArgs) => {
       }
     );
     const url = res.data.data.url;
-    console.log("generated meme url: ", url);
+    console.log("Generated meme url: ", url);
     return url as string;
   } catch (error) {
     console.error(error);
